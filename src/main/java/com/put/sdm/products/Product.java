@@ -32,6 +32,7 @@ public class Product extends OperationsHistory implements IProduct {
     public void decreaseBalance(Balance payment) {
         if(payment.getValue() > this.balance.getValue()) {
             System.out.println("Payment greater than balance");
+            return;
         }
 
         this.balance.credit(payment);
