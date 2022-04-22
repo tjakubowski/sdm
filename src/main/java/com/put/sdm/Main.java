@@ -1,6 +1,9 @@
 package com.put.sdm;
 
+import com.put.sdm.card.Card;
 import com.put.sdm.operations.Operation;
+import com.put.sdm.operations.bank.OpenCardOperation;
+import com.put.sdm.operations.card.MakeCardPayment;
 import com.put.sdm.products.Account;
 import com.put.sdm.products.BaseAccount;
 import com.put.sdm.products.DebitAccount;
@@ -25,6 +28,18 @@ public class Main {
         Account person1Account1 = (Account)person1Accounts.get(0);
         DebitAccount person1Account2 = (DebitAccount)person1Accounts.get(1);
 
+        person1Account2.setCreditLimit(new Balance(-100.f));
+
+        bank.openCardForAccount(person1Account2);
+        ArrayList<Card> person1Account2Cards = bank.getAccountCards(person1Account2);
+
+        Card person1Account2Card1 = person1Account2Cards.get(0);
+
+        {
+            Operation operation = new MakeCardPayment(person1Account2Card1, new Balance(-10.f));
+            operation.execute();
+            bank.addOperation(operation);
+        }
 
         for(Operation x : bank.getOperationHistory()){
            System.out.println(x.getExecutionDateTime().toLocalDate() + " " + x.getExecutionDateTime().toLocalTime() + ": " + x.getDescription());
