@@ -16,12 +16,12 @@ public class Balance {
         return otherBalance.getValue() - this.value;
     }
 
-    public void credit(Balance payment)
+    public void increase(Balance payment)
     {
         this.value += payment.getValue();
     }
 
-    public void debit(Balance payment)
+    public void decrease(Balance payment)
     {
         this.value -= payment.getValue();
     }

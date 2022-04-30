@@ -35,11 +35,11 @@ public class Product extends OperationsHistory implements IProduct {
             return;
         }
 
-        this.balance.credit(payment);
+        this.balance.decrease(payment);
     }
 
     public void increaseBalance(Balance payment) {
-        this.balance.credit(payment);
+        this.balance.increase(payment);
     }
 
     public Balance getBalance() {

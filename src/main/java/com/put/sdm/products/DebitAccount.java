@@ -4,23 +4,23 @@ import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
 
 public class DebitAccount extends Account {
-    protected Balance credit_limit;
+    protected Balance credit_limit = new Balance(0.f);
 
-    protected Balance credit;
+    protected Balance credit = new Balance(0.f);
 
     public void decreaseBalance(Balance payment) {
         if(payment.getValue() > this.balance.getValue()) {
-            payment.credit(this.balance);
-            Balance new_credit_value = credit;
-            new_credit_value.credit(payment);
-            if(new_credit_value.getValue() <= this.credit_limit.getValue()) {
+            payment.decrease(this.balance);
+            Balance new_credit_value = new Balance(this.credit.getValue());
+            new_credit_value.decrease(payment);
+            if(new_credit_value.getValue() >= this.credit_limit.getValue()) {
                 this.balance = new Balance(0.f);
                 this.credit = new_credit_value;
             }else{
                 System.out.println("Payment greater than credit limit");
             }
         }else {
-            this.balance.credit(payment);
+            this.balance.decrease(payment);
         }
     }
 

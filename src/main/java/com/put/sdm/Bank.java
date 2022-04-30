@@ -57,12 +57,12 @@ public class Bank extends OperationsHistory {
 
     public void increaseBalance(Balance payment)
     {
-        this.balance.credit(payment);
+        this.balance.increase(payment);
     }
 
     public void decreaseBalance(Balance payment)
     {
-        this.balance.debit(payment);
+        this.balance.decrease(payment);
     }
 
     public ArrayList<BaseAccount> getAccounts() {
