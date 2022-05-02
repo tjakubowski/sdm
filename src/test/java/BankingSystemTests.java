@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.put.sdm.Bank;
 import com.put.sdm.operations.Operation;
+import com.put.sdm.operations.bank.InterBankPaymentOperation;
 import com.put.sdm.operations.product.TransferMoneyOperation;
 import com.put.sdm.products.Account;
 import com.put.sdm.products.DebitAccount;
@@ -98,6 +99,28 @@ public class BankingSystemTests {
 
         assertEquals(0.f,debit_account1.getBalance().getValue());
         assertEquals(-40.f,debit_account1.getCredit().getValue());
+    }
+
+    @Test
+    void interBankTransactionsTest(){
+        Bank bank1 = new Bank();
+        Bank bank2 = new Bank();
+
+        bank1.increaseBalance(new Balance(1000.f));
+        bank2.increaseBalance(new Balance(1000.f));
+
+        assertEquals(1000.f,bank1.getBalance().getValue());
+        assertEquals(1000.f,bank2.getBalance().getValue());
+
+        {
+            Operation operation = new InterBankPaymentOperation(bank1, bank2, new Balance(400.f));
+            operation.execute();
+            bank1.addOperation(operation);
+            bank2.addOperation(operation);
+        }
+
+        assertEquals(600.f,bank1.getBalance().getValue());
+        assertEquals(1400.f,bank2.getBalance().getValue());
     }
 
 }
