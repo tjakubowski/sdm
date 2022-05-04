@@ -50,12 +50,12 @@ public class Loan extends Product {
 
     public void decreaseBalance(Balance payment)
     {
-        this.getBalance().debit(payment);
+        this.getBalance().decrease(payment);
     }
 
     public void increaseBalance(Balance payment)
     {
-        this.getBalance().credit(payment);
+        this.getBalance().increase(payment);
     }
 
     public LocalDateTime getClosingDateTime()
