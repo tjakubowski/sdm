@@ -1,6 +1,6 @@
 package com.put.sdm.products;
 
-import com.put.sdm.interestrates.DepositInterestRate;
+import com.put.sdm.interestrates.IInterestMechanism;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.product.MakeDepositOperation;
 import com.put.sdm.operations.product.WithdrawDepositOperation;
@@ -13,11 +13,11 @@ public class Deposit extends Product {
 
     protected Person supplierAccount;
 
-    protected DepositInterestRate interestRate;
+    protected IInterestMechanism interestRate;
 
     protected LocalDateTime closingDateTime;
 
-    public Deposit(Person owner, DepositInterestRate interestRate) {
+    public Deposit(Person owner, IInterestMechanism interestRate) {
         super(owner);
         this.supplierAccount = owner;
         this.interestRate = interestRate;

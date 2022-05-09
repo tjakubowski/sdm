@@ -1,6 +1,6 @@
 package com.put.sdm.products;
 
-import com.put.sdm.interestrates.LoanInterestRate;
+import com.put.sdm.interestrates.IInterestMechanism;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.product.OpenCreditOperation;
 import com.put.sdm.operations.product.RepayCreditOperation;
@@ -13,7 +13,7 @@ public class Loan extends Product {
 
     protected Account consumerAccount;
 
-    protected LoanInterestRate interestRate;
+    protected IInterestMechanism interestRate;
 
     protected LocalDateTime closingDateTime;
 
@@ -25,7 +25,7 @@ public class Loan extends Product {
         this.consumerAccount = consumerAccount;
     }
 
-    public Loan(Account consumerAccount, LoanInterestRate interestRate) {
+    public Loan(Account consumerAccount, IInterestMechanism interestRate) {
         super(consumerAccount.getOwner());
 
         this.consumerAccount = consumerAccount;
