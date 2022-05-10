@@ -7,7 +7,5 @@ import com.put.sdm.products.Product;
 public interface IReportable {
     String visitDeposit(Deposit deposit);
 
-    String visitLoan(Loan loan);
-
     String visitProduct(Product product);
 }

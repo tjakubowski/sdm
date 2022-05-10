@@ -2,24 +2,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 import com.put.sdm.Bank;
+import com.put.sdm.interestrates.IInterestMechanism;
 import com.put.sdm.operations.Operation;
+import com.put.sdm.operations.bank.CloseDepositOperation;
 import com.put.sdm.operations.bank.InterBankPaymentOperation;
 import com.put.sdm.operations.product.TransferMoneyOperation;
-import com.put.sdm.products.Account;
 import com.put.sdm.products.DebitAccount;
+import com.put.sdm.products.CreditAccount;
+import com.put.sdm.products.Deposit;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+
 public class BankingSystemTests {
     Bank bank;
     Person person1;
-    Account account1;
-    DebitAccount debit_account1;
+    DebitAccount account1;
+    CreditAccount debit_account1;
 
     Person person2;
-    Account account2;
+    DebitAccount account2;
 
     @BeforeEach
     public void BankingSystemTestsSetup() {
@@ -28,13 +33,13 @@ public class BankingSystemTests {
         person1 = new Person("Adam", "Adamowski");
         person2 = new Person("Damian", "Damianowski");
 
-        account1 = new Account(person1);
+        account1 = new DebitAccount(person1);
         bank.addAccount(account1);
 
-        debit_account1 = new DebitAccount(person1);
+        debit_account1 = new CreditAccount(person1);
         bank.addAccount(debit_account1);
 
-        account2 = new Account(person2);
+        account2 = new DebitAccount(person2);
         bank.addAccount(account2);
     }
 
@@ -121,6 +126,56 @@ public class BankingSystemTests {
 
         assertEquals(600.f,bank1.getBalance().getValue());
         assertEquals(1400.f,bank2.getBalance().getValue());
+    }
+
+    @Test
+    void depositTooEarlyTest() {
+        account1.increaseBalance(new Balance(100.f));
+        assertEquals(100.f,account1.getBalance().getValue());
+
+        bank.openDepositForPersonUsingAccount(person1, account1, LocalDateTime.now().plusYears(1), new Balance(100.f));
+
+        Deposit deposit = bank.getDeposits().get(0);
+        assertEquals(100.f, deposit.getBalance().getValue());
+
+        System.out.println(deposit.getBalance().getValue());
+
+        {
+            Operation operation = new CloseDepositOperation(bank, deposit);
+            operation.execute();
+            bank.addOperation(operation);
+        }
+
+        assertEquals(account1.getBalance().getValue(),100.f);
+
+        System.out.println(account1.getBalance().getValue());
+    }
+
+    @Test
+    void depositAtRightTimeTest() {
+        account1.increaseBalance(new Balance(100.f));
+        assertEquals(100.f,account1.getBalance().getValue());
+
+        bank.openDepositForPersonUsingAccount(person1, account1, LocalDateTime.now().minusDays(1), new Balance(100.f));
+
+        Deposit deposit = bank.getDeposits().get(0);
+        assertEquals(100.f, deposit.getBalance().getValue());
+
+        System.out.println(deposit.getBalance().getValue());
+
+        IInterestMechanism interest = deposit.getInterestMechanism();
+
+        Balance predicted_deposit_gain = new Balance(100.f * interest.calculateInterest(deposit));
+
+        {
+            Operation operation = new CloseDepositOperation(bank, deposit);
+            operation.execute();
+            bank.addOperation(operation);
+        }
+
+        assertEquals(account1.getBalance().getValue(),100.f + predicted_deposit_gain.getValue());
+
+        System.out.println(account1.getBalance().getValue());
     }
 
 }

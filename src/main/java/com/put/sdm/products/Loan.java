@@ -2,83 +2,40 @@ package com.put.sdm.products;
 
 import com.put.sdm.interestrates.IInterestMechanism;
 import com.put.sdm.operations.Operation;
-import com.put.sdm.operations.product.OpenCreditOperation;
-import com.put.sdm.operations.product.RepayCreditOperation;
+import com.put.sdm.operations.product.TransferMoneyOperation;
 import com.put.sdm.products.object.Balance;
+import com.put.sdm.products.object.Person;
 import com.put.sdm.reports.IReportable;
 
 import java.time.LocalDateTime;
 
 public class Loan extends Product {
 
-    protected Account consumerAccount;
+    BaseAccount connectedAccount;
 
     protected IInterestMechanism interestRate;
 
-    protected LocalDateTime closingDateTime;
+    Balance credit;
 
-    protected LocalDateTime nextRepaymentDateTime;
+    public Loan(Person owner, BaseAccount account, Balance credit, IInterestMechanism interestRate) {
+        super(owner);
 
-    public Loan(Account consumerAccount) {
-        super(consumerAccount.getOwner());
-
-        this.consumerAccount = consumerAccount;
-    }
-
-    public Loan(Account consumerAccount, IInterestMechanism interestRate) {
-        super(consumerAccount.getOwner());
-
-        this.consumerAccount = consumerAccount;
+        this.connectedAccount = account;
         this.interestRate = interestRate;
+        this.credit = credit;
     }
 
-    public void openCredit(Balance credit)
-    {
-        Operation operation = new OpenCreditOperation(this.consumerAccount, this, credit);
-        operation.execute();
-
-        this.addOperation(operation);
+    public void increaseCreditByInterest(){
+        this.credit.increase(new Balance(this.credit.getValue() * interestRate.calculateInterest(this)));
     }
 
-    public void repayCredit(Balance payment)
-    {
-        Operation operation = new RepayCreditOperation(this.consumerAccount, this, payment);
-        operation.execute();
-
-        this.addOperation(operation);
+    public BaseAccount getConnectedAccount() {
+        return connectedAccount;
     }
 
-    public void decreaseBalance(Balance payment)
+    public IInterestMechanism getInterestMechanism()
     {
-        this.getBalance().decrease(payment);
-    }
-
-    public void increaseBalance(Balance payment)
-    {
-        this.getBalance().increase(payment);
-    }
-
-    public LocalDateTime getClosingDateTime()
-    {
-        return this.closingDateTime;
-    }
-
-    public LocalDateTime getNextRepaymentDateTime()
-    {
-        return this.nextRepaymentDateTime;
-    }
-
-    public void updateNextRepaymentDateTime()
-    {
-        this.nextRepaymentDateTime = this.nextRepaymentDateTime.plusYears(1);
-    }
-
-    public void updateOpeningTime()
-    {
-        super.updateOpeningTime();
-
-        this.closingDateTime = this.openingDateTime.plusYears(1);
-        this.nextRepaymentDateTime = this.closingDateTime.plusYears(1);
+        return interestRate;
     }
 
     public String accept(IReportable visitor)

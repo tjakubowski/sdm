@@ -9,10 +9,6 @@ public class Report implements IReportable {
         return String.format("%s, closes: %s", this.visitProduct(deposit), deposit.getClosingDateTime());
     }
 
-    public String visitLoan(Loan loan) {
-        return String.format("%s, closes: %s, next repayment: %s", this.visitProduct(loan), loan.getClosingDateTime(), loan.getNextRepaymentDateTime());
-    }
-
     public String visitProduct(Product product) {
         return String.format("%s %s: %s", product.getOwner().getFirstName(), product.getOwner().getLastName(), product.getBalance().getValue());
     }

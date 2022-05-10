@@ -1,7 +1,6 @@
 package com.put.sdm.operations.bank;
 
 import com.put.sdm.Bank;
-import com.put.sdm.products.Account;
 import com.put.sdm.products.DebitAccount;
 import com.put.sdm.products.object.Person;
 

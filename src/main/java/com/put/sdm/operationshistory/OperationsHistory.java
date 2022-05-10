@@ -1,7 +1,6 @@
 package com.put.sdm.operationshistory;
 
 import com.put.sdm.operations.Operation;
-import com.put.sdm.products.Account;
 
 import java.util.ArrayList;
 
