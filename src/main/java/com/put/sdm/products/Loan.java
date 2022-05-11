@@ -17,7 +17,8 @@ public class Loan extends Product {
 
     Balance credit;
 
-    public Loan(Person owner, BaseAccount account, Balance credit, IInterestMechanism interestRate) {
+    public Loan(Person owner, BaseAccount account, Balance credit, IInterestMechanism interestRate)
+    {
         super(owner);
 
         this.connectedAccount = account;
@@ -25,8 +26,9 @@ public class Loan extends Product {
         this.credit = credit;
     }
 
-    public void increaseCreditByInterest(){
-        this.credit.increase(new Balance(this.credit.getValue() * interestRate.calculateInterest(this)));
+    public void increaseCreditByInterest()
+    {
+        this.credit.increase(new Balance(this.getMoneyToRepay().getValue() * interestRate.calculateInterest(this)));
     }
 
     public BaseAccount getConnectedAccount() {
@@ -36,6 +38,16 @@ public class Loan extends Product {
     public IInterestMechanism getInterestMechanism()
     {
         return interestRate;
+    }
+
+    public Balance getCredit()
+    {
+        return credit;
+    }
+
+    public Balance getMoneyToRepay()
+    {
+        return new Balance(credit.getValue() - balance.getValue());
     }
 
     public String accept(IReportable visitor)

@@ -6,10 +6,13 @@ import com.put.sdm.interestrates.IInterestMechanism;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.bank.CloseDepositOperation;
 import com.put.sdm.operations.bank.InterBankPaymentOperation;
+import com.put.sdm.operations.bank.RepayAndCloseLoanOperation;
+import com.put.sdm.operations.product.RepayLoanPartiallyOperation;
 import com.put.sdm.operations.product.TransferMoneyOperation;
 import com.put.sdm.products.DebitAccount;
 import com.put.sdm.products.CreditAccount;
 import com.put.sdm.products.Deposit;
+import com.put.sdm.products.Loan;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +30,8 @@ public class BankingSystemTests {
     DebitAccount account2;
 
     @BeforeEach
-    public void BankingSystemTestsSetup() {
+    public void BankingSystemTestsSetup()
+    {
         bank = new Bank();
 
         person1 = new Person("Adam", "Adamowski");
@@ -60,7 +64,8 @@ public class BankingSystemTests {
     }
 
     @Test
-    void accountBalanceTest() {
+    void accountBalanceTest()
+    {
         assertEquals(0,account1.getBalance().getValue());
 
         account1.increaseBalance(new Balance(10));
@@ -75,7 +80,8 @@ public class BankingSystemTests {
     }
 
     @Test
-    void debitAccountTest(){
+    void debitAccountTest()
+    {
         assertEquals(0.f,debit_account1.getBalance().getValue());
         assertEquals(0.f,debit_account1.getCredit().getValue());
 
@@ -107,7 +113,8 @@ public class BankingSystemTests {
     }
 
     @Test
-    void interBankTransactionsTest(){
+    void interBankTransactionsTest()
+    {
         Bank bank1 = new Bank();
         Bank bank2 = new Bank();
 
@@ -129,7 +136,8 @@ public class BankingSystemTests {
     }
 
     @Test
-    void depositTooEarlyTest() {
+    void depositTooEarlyTest()
+    {
         account1.increaseBalance(new Balance(100.f));
         assertEquals(100.f,account1.getBalance().getValue());
 
@@ -152,7 +160,8 @@ public class BankingSystemTests {
     }
 
     @Test
-    void depositAtRightTimeTest() {
+    void depositAtRightTimeTest()
+    {
         account1.increaseBalance(new Balance(100.f));
         assertEquals(100.f,account1.getBalance().getValue());
 
@@ -174,6 +183,43 @@ public class BankingSystemTests {
         }
 
         assertEquals(account1.getBalance().getValue(),100.f + predicted_deposit_gain.getValue());
+
+        System.out.println(account1.getBalance().getValue());
+    }
+
+    @Test
+    void loanTest()
+    {
+        account1.increaseBalance(new Balance(100.f));
+        assertEquals(100.f,account1.getBalance().getValue());
+
+        bank.openLoanForPersonUsingAccount(person1, account1, new Balance(100.f));
+
+        Loan loan = bank.getLoans().get(0);
+
+        assertEquals(100.f, loan.getCredit().getValue());
+        assertEquals(200.f, account1.getBalance().getValue());
+
+        {
+            Operation operation = new RepayLoanPartiallyOperation(loan, new Balance(50.f));
+            operation.execute();
+        }
+
+        assertEquals(50.f, loan.getMoneyToRepay().getValue());
+        assertEquals(150.f, account1.getBalance().getValue());
+
+        loan.increaseCreditByInterest();
+        assertEquals(50.f + 50.f * loan.getInterestMechanism().calculateInterest(loan), loan.getMoneyToRepay().getValue());
+
+        Balance money_to_repay = loan.getMoneyToRepay();
+
+        {
+            Operation operation = new RepayAndCloseLoanOperation(bank, loan);
+            operation.execute();
+            bank.addOperation(operation);
+        }
+
+        assertEquals(200.f - loan.getCredit().getValue(), account1.getBalance().getValue());
 
         System.out.println(account1.getBalance().getValue());
     }
