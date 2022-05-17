@@ -1,6 +1,7 @@
 package com.put.sdm;
 
 import com.put.sdm.card.Card;
+import com.put.sdm.interbankpayments.InterbankPaymentAgency;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.bank.*;
 import com.put.sdm.operationshistory.OperationsHistory;
@@ -22,12 +23,12 @@ public class Bank extends OperationsHistory {
     protected ArrayList<Deposit> deposits = new ArrayList<Deposit>();
     protected ArrayList<Loan> loans = new ArrayList<Loan>();
 
-    protected Balance balance;
+    InterbankPaymentAgency interbank_payment_agency;
 
-    public Bank() {
+    public Bank(InterbankPaymentAgency interbank_payment_agency) {
         super("Open bank");
 
-        this.balance = new Balance();
+        this.interbank_payment_agency = interbank_payment_agency;
     }
 
     public void openDebitAccountForPerson(Person owner)
@@ -93,16 +94,6 @@ public class Bank extends OperationsHistory {
         this.loans.remove(loan);
     }
 
-    public void increaseBalance(Balance payment)
-    {
-        this.balance.increase(payment);
-    }
-
-    public void decreaseBalance(Balance payment)
-    {
-        this.balance.decrease(payment);
-    }
-
     public ArrayList<BaseAccount> getAccounts() {
         return accounts;
     }
@@ -132,9 +123,5 @@ public class Bank extends OperationsHistory {
             }
         }
         return cards_to_return;
-    }
-
-    public Balance getBalance() {
-        return balance;
     }
 }

@@ -1,6 +1,7 @@
 package com.put.sdm;
 
 import com.put.sdm.card.Card;
+import com.put.sdm.interbankpayments.InterbankPaymentAgency;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.card.MakeCardPayment;
 import com.put.sdm.products.DebitAccount;
@@ -16,7 +17,10 @@ public class Main {
         Person person1 = new Person("Adam", "Adamowski");
         Person person2 = new Person("Konrad", "Krzewski");
 
-        Bank bank = new Bank();
+        InterbankPaymentAgency interbankPaymentAgency = new InterbankPaymentAgency();
+
+        Bank bank = new Bank(interbankPaymentAgency);
+        interbankPaymentAgency.addBank(bank);
 
         bank.openDebitAccountForPerson(person1);
         bank.openCreditAccountForPerson(person1);

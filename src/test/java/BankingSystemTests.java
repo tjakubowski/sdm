@@ -2,10 +2,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 import com.put.sdm.Bank;
+import com.put.sdm.interbankpayments.InterbankPaymentAgency;
 import com.put.sdm.interestrates.IInterestMechanism;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.bank.CloseDepositOperation;
-import com.put.sdm.operations.bank.InterBankPaymentOperation;
 import com.put.sdm.operations.bank.RepayAndCloseLoanOperation;
 import com.put.sdm.operations.product.RepayLoanPartiallyOperation;
 import com.put.sdm.operations.product.TransferMoneyOperation;
@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 public class BankingSystemTests {
+    InterbankPaymentAgency interbank_payment_agency;
+
     Bank bank;
     Person person1;
     DebitAccount account1;
@@ -32,7 +34,10 @@ public class BankingSystemTests {
     @BeforeEach
     public void BankingSystemTestsSetup()
     {
-        bank = new Bank();
+        interbank_payment_agency = new InterbankPaymentAgency();
+
+        bank = new Bank(interbank_payment_agency);
+        interbank_payment_agency.addBank(bank);
 
         person1 = new Person("Adam", "Adamowski");
         person2 = new Person("Damian", "Damianowski");
@@ -115,24 +120,28 @@ public class BankingSystemTests {
     @Test
     void interBankTransactionsTest()
     {
-        Bank bank1 = new Bank();
-        Bank bank2 = new Bank();
+        Bank bank2 = new Bank(interbank_payment_agency);
+        interbank_payment_agency.addBank(bank2);
 
-        bank1.increaseBalance(new Balance(1000.f));
-        bank2.increaseBalance(new Balance(1000.f));
+        Person person3  = new Person("Adrian", "Adrianowski");
+        DebitAccount account3 = new DebitAccount(person3);
 
-        assertEquals(1000.f,bank1.getBalance().getValue());
-        assertEquals(1000.f,bank2.getBalance().getValue());
+        bank2.addAccount(account3);
 
-        {
-            Operation operation = new InterBankPaymentOperation(bank1, bank2, new Balance(400.f));
-            operation.execute();
-            bank1.addOperation(operation);
-            bank2.addOperation(operation);
+        account1.increaseBalance(new Balance(100.f));
+        account3.increaseBalance(new Balance(100.f));
+
+        assertEquals(100.f,account1.getBalance().getValue());
+        assertEquals(100.f,account3.getBalance().getValue());
+
+        if(interbank_payment_agency.isThereABankWithAccount(account3)){
+            Bank target_bank = interbank_payment_agency.getBankWithAccount(account3);
+            interbank_payment_agency.transferMoneyFromAccountToAccount(account1, bank, account3, target_bank, new Balance(50.f));
         }
 
-        assertEquals(600.f,bank1.getBalance().getValue());
-        assertEquals(1400.f,bank2.getBalance().getValue());
+        assertEquals(50.f,account1.getBalance().getValue());
+        assertEquals(150.f,account3.getBalance().getValue());
+
     }
 
     @Test
