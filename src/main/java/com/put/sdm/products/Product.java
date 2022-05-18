@@ -66,11 +66,4 @@ public class Product extends OperationsHistory implements IProduct {
     public String accept(IReportable visitor) {
         return visitor.visitProduct(this);
     }
-
-    public void transferMoney(Product otherAccount, Balance payment) {
-        Operation operation = new TransferMoneyOperation(this, otherAccount, payment);
-        operation.execute();
-
-        this.addOperation(operation);
-    }
 }

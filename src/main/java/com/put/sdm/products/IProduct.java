@@ -21,5 +21,4 @@ public interface IProduct {
 
     String accept(IReportable visitor);
 
-    void transferMoney(Product otherAccount, Balance payment);
 }

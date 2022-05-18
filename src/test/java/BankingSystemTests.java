@@ -26,7 +26,7 @@ public class BankingSystemTests {
     Bank bank;
     Person person1;
     DebitAccount account1;
-    CreditAccount debit_account1;
+    CreditAccount credit_account1;
 
     Person person2;
     DebitAccount account2;
@@ -45,8 +45,8 @@ public class BankingSystemTests {
         account1 = new DebitAccount(person1);
         bank.addAccount(account1);
 
-        debit_account1 = new CreditAccount(person1);
-        bank.addAccount(debit_account1);
+        credit_account1 = new CreditAccount(new DebitAccount(person1));
+        bank.addAccount(credit_account1);
 
         account2 = new DebitAccount(person2);
         bank.addAccount(account2);
@@ -85,36 +85,36 @@ public class BankingSystemTests {
     }
 
     @Test
-    void debitAccountTest()
+    void creditAccountTest()
     {
-        assertEquals(0.f,debit_account1.getBalance().getValue());
-        assertEquals(0.f,debit_account1.getCredit().getValue());
+        assertEquals(0.f, credit_account1.getBalance().getValue());
+        assertEquals(0.f, credit_account1.getCredit().getValue());
 
-        debit_account1.increaseBalance(new Balance(50.f));
-        assertEquals(50.f,debit_account1.getBalance().getValue());
+        credit_account1.increaseBalance(new Balance(50.f));
+        assertEquals(50.f, credit_account1.getBalance().getValue());
 
-        debit_account1.setCreditLimit(new Balance(-100.f));
-        assertEquals(-100.f,debit_account1.getCreditLimit().getValue());
+        credit_account1.setCreditLimit(new Balance(-100.f));
+        assertEquals(-100.f, credit_account1.getCreditLimit().getValue());
 
         {
-            Operation operation = new TransferMoneyOperation(debit_account1, account2, new Balance(90.f));
+            Operation operation = new TransferMoneyOperation(credit_account1, account2, new Balance(90.f));
             operation.execute();
             bank.addOperation(operation);
         }
 
-        assertEquals(0.f,debit_account1.getBalance().getValue());
-        assertEquals(-40.f,debit_account1.getCredit().getValue());
+        assertEquals(0.f, credit_account1.getBalance().getValue());
+        assertEquals(-40.f, credit_account1.getCredit().getValue());
 
 
         //Decreasing balance of account below credit limit should not be possible
         {
-            Operation operation = new TransferMoneyOperation(debit_account1, account2, new Balance(90.f));
+            Operation operation = new TransferMoneyOperation(credit_account1, account2, new Balance(90.f));
             operation.execute();
             bank.addOperation(operation);
         }
 
-        assertEquals(0.f,debit_account1.getBalance().getValue());
-        assertEquals(-40.f,debit_account1.getCredit().getValue());
+        assertEquals(0.f, credit_account1.getBalance().getValue());
+        assertEquals(-40.f, credit_account1.getCredit().getValue());
     }
 
     @Test
