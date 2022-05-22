@@ -24,6 +24,8 @@ public class RepayAndCloseLoanOperation extends BankOperation {
             loan.addOperation(transfer_money_from_account_to_loan);
             loan.getConnectedAccount().addOperation(transfer_money_from_account_to_loan);
             this.bank.removeLoan(loan);
+
+            this.bank.addOperation(this);
         }
     }
 }

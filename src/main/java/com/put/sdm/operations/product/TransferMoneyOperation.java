@@ -18,8 +18,14 @@ public class TransferMoneyOperation extends ProductOperation {
     public void execute() {
         super.execute();
 
-        this.product.decreaseBalance(this.payment);
-        this.receiverAccount.increaseBalance(this.payment);
+        boolean success = this.product.decreaseBalance(this.payment);
+
+        if(success) {
+            this.receiverAccount.increaseBalance(this.payment);
+
+            this.product.addOperation(this);
+            this.receiverAccount.addOperation(this);
+        }
     }
 
 }

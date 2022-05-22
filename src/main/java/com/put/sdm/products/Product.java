@@ -1,16 +1,15 @@
 package com.put.sdm.products;
 
-import com.put.sdm.operations.Operation;
-import com.put.sdm.operations.product.TransferMoneyOperation;
 import com.put.sdm.operationshistory.OperationsHistory;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
-import com.put.sdm.reports.IReportable;
+import com.put.sdm.reports.IElement;
+import com.put.sdm.reports.IVisitor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Product extends OperationsHistory implements IProduct {
+public abstract class Product extends OperationsHistory implements IProduct, IElement {
 
     protected String id;
 
@@ -29,13 +28,20 @@ public class Product extends OperationsHistory implements IProduct {
         this.openingDateTime = LocalDateTime.now();
     }
 
-    public void decreaseBalance(Balance payment) {
+    public String getId()
+    {
+        return this.id;
+    }
+
+    public boolean decreaseBalance(Balance payment) {
         if(payment.getValue() > this.balance.getValue()) {
             System.out.println("Payment greater than balance");
-            return;
+            return false;
         }
 
         this.balance.decrease(payment);
+
+        return true;
     }
 
     public void increaseBalance(Balance payment) {
@@ -63,7 +69,5 @@ public class Product extends OperationsHistory implements IProduct {
         this.openingDateTime = LocalDateTime.now();
     }
 
-    public String accept(IReportable visitor) {
-        return visitor.visitProduct(this);
-    }
+    public abstract Product accept(IVisitor visitor);
 }

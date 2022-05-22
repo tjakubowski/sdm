@@ -18,5 +18,7 @@ public class MakeCardPayment extends CardOperation{
         super.execute();
 
         this.card.getConnectedAccount().decreaseBalance(payment);
+
+        this.card.getConnectedAccount().addOperation(this);
     }
 }

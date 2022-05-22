@@ -5,10 +5,12 @@ import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.product.TransferMoneyOperation;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
+import com.put.sdm.reports.IElement;
+import com.put.sdm.reports.IVisitor;
 
 import java.time.LocalDateTime;
 
-public class Deposit extends Product {
+public class Deposit extends Product implements IElement {
 
     BaseAccount connectedAccount;
 
@@ -46,5 +48,9 @@ public class Deposit extends Product {
 
     public void updateOpeningTime() {
         super.updateOpeningTime();
+    }
+
+    public Product accept(IVisitor visitor) {
+        return visitor.visit(this);
     }
 }

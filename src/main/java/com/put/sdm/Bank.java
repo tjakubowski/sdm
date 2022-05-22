@@ -5,23 +5,26 @@ import com.put.sdm.interbankpayments.InterbankPaymentAgency;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.bank.*;
 import com.put.sdm.operationshistory.OperationsHistory;
-import com.put.sdm.products.BaseAccount;
-import com.put.sdm.products.Deposit;
-import com.put.sdm.products.Loan;
+import com.put.sdm.products.*;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
+import com.put.sdm.reports.CompleteReport;
+import com.put.sdm.reports.HistoryReport;
+import com.put.sdm.reports.IVisitor;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Bank extends OperationsHistory {
 
+    protected ArrayList<Product> all_products = new ArrayList<Product>();
+
     protected ArrayList<BaseAccount> accounts = new ArrayList<BaseAccount>();
-
-    protected ArrayList<Card> cards = new ArrayList<Card>();
-
     protected ArrayList<Deposit> deposits = new ArrayList<Deposit>();
     protected ArrayList<Loan> loans = new ArrayList<Loan>();
+
+    protected ArrayList<Card> cards = new ArrayList<Card>();
 
     InterbankPaymentAgency interbank_payment_agency;
 
@@ -31,44 +34,72 @@ public class Bank extends OperationsHistory {
         this.interbank_payment_agency = interbank_payment_agency;
     }
 
-    public void openDebitAccountForPerson(Person owner)
+    public Account openDebitAccountForPerson(Person owner)
     {
         Operation operation = new OpenDebitAccountOperation(this, owner);
         operation.execute();
-        this.addOperation(operation);
+
+        return (Account)accounts.get(accounts.size() - 1);
     }
 
-    public void openCreditAccountForPerson(Person owner)
+    public CreditAccount openCreditAccountForPerson(Person owner)
     {
         Operation operation = new OpenCreditAccountOperation(this, owner);
         operation.execute();
-        this.addOperation(operation);
+
+        return (CreditAccount) accounts.get(accounts.size() - 1);
     }
 
-    public void openCardForAccount(BaseAccount account)
+    public Card openCardForAccount(BaseAccount account)
     {
         Operation operation = new OpenCardOperation(this, account);
         operation.execute();
-        this.addOperation(operation);
+
+        return cards.get(cards.size() - 1);
     }
 
-    public void openDepositForPersonUsingAccount(Person owner, BaseAccount account, LocalDateTime close_datetime, Balance money)
+    public Deposit openDepositForPersonUsingAccount(Person owner, BaseAccount account, LocalDateTime close_datetime, Balance money)
     {
         Operation operation = new OpenDepositOperation(this, owner, account, close_datetime, money);
         operation.execute();
-        this.addOperation(operation);
+
+        return deposits.get(deposits.size() - 1);
     }
 
-    public void openLoanForPersonUsingAccount(Person owner, BaseAccount account, Balance money)
+    public Loan openLoanForPersonUsingAccount(Person owner, BaseAccount account, Balance money)
     {
         Operation operation = new OpenLoanOperation(this, owner, account, money);
         operation.execute();
-        this.addOperation(operation);
+
+        return loans.get(loans.size() - 1);
     }
 
     public void addAccount(BaseAccount account)
     {
+        this.all_products.add(account);
         this.accounts.add(account);
+    }
+
+    public void addDeposit(Deposit deposit)
+    {
+        this.all_products.add(deposit);
+        this.deposits.add(deposit);
+    }
+    public void removeDeposit(Deposit deposit)
+    {
+        this.all_products.remove(deposit);
+        this.deposits.remove(deposit);
+    }
+
+    public void addLoan(Loan loan)
+    {
+        this.all_products.add(loan);
+        this.loans.add(loan);
+    }
+    public void removeLoan(Loan loan)
+    {
+        this.all_products.remove(loan);
+        this.loans.remove(loan);
     }
 
     public void addCard(Card card)
@@ -76,29 +107,9 @@ public class Bank extends OperationsHistory {
         this.cards.add(card);
     }
 
-    public void addDeposit(Deposit deposit)
-    {
-        this.deposits.add(deposit);
-    }
-    public void removeDeposit(Deposit deposit)
-    {
-        this.deposits.remove(deposit);
-    }
-
-    public void addLoan(Loan loan)
-    {
-        this.loans.add(loan);
-    }
-    public void removeLoan(Loan loan)
-    {
-        this.loans.remove(loan);
-    }
 
     public ArrayList<BaseAccount> getAccounts() {
         return accounts;
-    }
-    public ArrayList<Card> getCards() {
-        return cards;
     }
     public ArrayList<Loan> getLoans() {
         return loans;
@@ -123,5 +134,36 @@ public class Bank extends OperationsHistory {
             }
         }
         return cards_to_return;
+    }
+
+    public ArrayList<Card> getCards() {
+        return cards;
+    }
+
+    public ArrayList<Product> prepareReportProducts(IVisitor report) {
+        ArrayList<Product> to_return = new ArrayList<Product>();
+
+        for(Product prod : all_products) {
+            to_return.add(prod.accept(report));
+        }
+
+        return to_return;
+    }
+
+    public String prepareHistoryReport() {
+        IVisitor history_report = new HistoryReport();
+
+        ArrayList<Product> products = prepareReportProducts(history_report);
+
+        StringBuilder to_return = new StringBuilder();
+
+        for(Product prod : products){
+            if(prod == null) { continue; }
+            for(Operation op : prod.getOperationHistory()){
+                to_return.append(op.getExecutionDateTime().toString()).append(" ").append(prod.getId()).append(": ").append(op.getDescription()).append("\n");
+            }
+        }
+
+        return to_return.toString();
     }
 }

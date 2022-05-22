@@ -2,12 +2,11 @@ package com.put.sdm.products;
 
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
-import com.put.sdm.reports.IReportable;
 
 import java.time.LocalDateTime;
 
 public interface IProduct {
-    void decreaseBalance(Balance payment);
+    boolean decreaseBalance(Balance payment);
 
     void increaseBalance(Balance payment);
 
@@ -18,7 +17,4 @@ public interface IProduct {
     LocalDateTime getOpeningDateTime();
 
     void updateOpeningTime();
-
-    String accept(IReportable visitor);
-
 }

@@ -2,7 +2,7 @@ package com.put.sdm.operations.bank;
 
 import com.put.sdm.Bank;
 import com.put.sdm.products.CreditAccount;
-import com.put.sdm.products.DebitAccount;
+import com.put.sdm.products.Account;
 import com.put.sdm.products.object.Person;
 
 public class OpenCreditAccountOperation extends BankOperation {
@@ -11,7 +11,7 @@ public class OpenCreditAccountOperation extends BankOperation {
 
     public OpenCreditAccountOperation(Bank bank, Person owner) {
         super(bank, "Open credit account");
-        this.account = new CreditAccount(new DebitAccount(owner));
+        this.account = new CreditAccount(new Account(owner));
     }
 
     public void execute() {
@@ -19,5 +19,7 @@ public class OpenCreditAccountOperation extends BankOperation {
 
         this.account.updateOpeningTime();
         this.bank.addAccount(this.account);
+
+        this.bank.addOperation(this);
     }
 }

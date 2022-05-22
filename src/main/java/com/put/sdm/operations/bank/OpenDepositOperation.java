@@ -37,6 +37,8 @@ public class OpenDepositOperation extends BankOperation {
             transfer_money_from_account_to_deposit.execute();
             this.account.addOperation(transfer_money_from_account_to_deposit);
             new_deposit.addOperation(transfer_money_from_account_to_deposit);
+
+            this.bank.addOperation(this);
         }
     }
 }

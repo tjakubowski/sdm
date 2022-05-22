@@ -17,5 +17,7 @@ public class OpenCardOperation extends BankOperation {
         super.execute();
 
         this.bank.addCard(this.card);
+
+        this.bank.addOperation(this);
     }
 }

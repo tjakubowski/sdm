@@ -25,6 +25,7 @@ public class RepayLoanPartiallyOperation extends ProductOperation {
         {
             TransferMoneyOperation transfer_money_from_account_to_loan = new TransferMoneyOperation(loan.getConnectedAccount(), loan, new Balance(this.money.getValue()));
             transfer_money_from_account_to_loan.execute();
+
             loan.addOperation(transfer_money_from_account_to_loan);
             loan.getConnectedAccount().addOperation(transfer_money_from_account_to_loan);
         }

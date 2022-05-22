@@ -31,5 +31,7 @@ public class CloseDepositOperation extends BankOperation {
         this.deposit.addOperation(transfer_money_from_deposit_to_account);
         this.deposit.getConnectedAccount().addOperation(transfer_money_from_deposit_to_account);
         this.bank.removeDeposit(this.deposit);
+
+        this.bank.addOperation(this);
     }
 }

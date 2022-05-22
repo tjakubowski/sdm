@@ -37,5 +37,7 @@ public class OpenLoanOperation extends BankOperation {
         transfer_money_from_loan_to_account.execute();
         this.account.addOperation(transfer_money_from_loan_to_account);
         new_loan.addOperation(transfer_money_from_loan_to_account);
+
+        this.bank.addOperation(this);
     }
 }

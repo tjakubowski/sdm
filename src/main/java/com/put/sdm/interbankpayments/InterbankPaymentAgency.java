@@ -8,7 +8,7 @@ import com.put.sdm.products.object.Balance;
 import java.util.ArrayList;
 
 public class InterbankPaymentAgency {
-    protected ArrayList<Bank> banks = new ArrayList<Bank>();
+    protected ArrayList<Bank> banks = new ArrayList<>();
 
     public InterbankPaymentAgency()
     {
@@ -47,6 +47,7 @@ public class InterbankPaymentAgency {
         if(banks.contains(source_bank) && source_bank.getAccounts().contains(source_account) && banks.contains(target_bank) && target_bank.getAccounts().contains(target_account)){
             TransferMoneyOperation transfer_money = new TransferMoneyOperation(source_account, target_account, money);
             transfer_money.execute();
+
             source_account.addOperation(transfer_money);
             target_account.addOperation(transfer_money);
         }
