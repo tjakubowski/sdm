@@ -2,7 +2,7 @@ package com.put.sdm.reports;
 
 import com.put.sdm.products.*;
 
-public class AccountReport implements IVisitor {
+public class AccountsReport implements IVisitor {
     public Product visit(Account acc) {
         return acc;
     }

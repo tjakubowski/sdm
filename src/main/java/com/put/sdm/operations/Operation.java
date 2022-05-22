@@ -2,7 +2,7 @@ package com.put.sdm.operations;
 
 import java.time.LocalDateTime;
 
-public class Operation {
+public class Operation implements IOperation {
 
     protected String description;
 

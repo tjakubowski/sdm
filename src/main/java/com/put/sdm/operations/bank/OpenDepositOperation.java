@@ -33,12 +33,14 @@ public class OpenDepositOperation extends BankOperation {
             this.bank.addDeposit(new_deposit);
             new_deposit.updateOpeningTime();
 
+            new_deposit.addOperation(this);
+            this.bank.addOperation(this);
+
             TransferMoneyOperation transfer_money_from_account_to_deposit = new TransferMoneyOperation(this.account, new_deposit, new Balance(this.money.getValue()));
             transfer_money_from_account_to_deposit.execute();
+
             this.account.addOperation(transfer_money_from_account_to_deposit);
             new_deposit.addOperation(transfer_money_from_account_to_deposit);
-
-            this.bank.addOperation(this);
         }
     }
 }

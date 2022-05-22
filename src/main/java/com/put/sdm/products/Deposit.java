@@ -32,6 +32,10 @@ public class Deposit extends Product implements IElement {
         return connectedAccount;
     }
 
+    public void setInterestMechanism(IInterestMechanism interestRate)
+    {
+        this.interestRate = interestRate;
+    }
     public IInterestMechanism getInterestMechanism()
     {
         return interestRate;

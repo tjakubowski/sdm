@@ -19,6 +19,7 @@ public class OpenDebitAccountOperation extends BankOperation {
         this.account.updateOpeningTime();
         this.bank.addAccount(this.account);
 
+        this.account.addOperation(this);
         this.bank.addOperation(this);
     }
 }

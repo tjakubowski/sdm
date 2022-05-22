@@ -8,11 +8,10 @@ import com.put.sdm.operationshistory.OperationsHistory;
 import com.put.sdm.products.*;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
+import com.put.sdm.reports.AccountsWithMoneyReport;
 import com.put.sdm.reports.CompleteReport;
-import com.put.sdm.reports.HistoryReport;
 import com.put.sdm.reports.IVisitor;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -150,8 +149,25 @@ public class Bank extends OperationsHistory {
         return to_return;
     }
 
-    public String prepareHistoryReport() {
-        IVisitor history_report = new HistoryReport();
+    public String prepareCompleteReport() {
+        IVisitor history_report = new CompleteReport();
+
+        ArrayList<Product> products = prepareReportProducts(history_report);
+
+        StringBuilder to_return = new StringBuilder();
+
+        for(Product prod : products){
+            if(prod == null) { continue; }
+            for(Operation op : prod.getOperationHistory()){
+                to_return.append(op.getExecutionDateTime().toString()).append(" ").append(prod.getId()).append(": ").append(op.getDescription()).append("\n");
+            }
+        }
+
+        return to_return.toString();
+    }
+
+    public String prepareAccountsWithMoneyReport() {
+        IVisitor history_report = new AccountsWithMoneyReport();
 
         ArrayList<Product> products = prepareReportProducts(history_report);
 

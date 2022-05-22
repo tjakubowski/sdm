@@ -1,16 +1,17 @@
 import com.put.sdm.Bank;
 import com.put.sdm.interbankpayments.InterbankPaymentAgency;
+import com.put.sdm.interestrates.DepositInterestRateB;
 import com.put.sdm.interestrates.IInterestMechanism;
+import com.put.sdm.interestrates.LoanInterestRateB;
 import com.put.sdm.operations.Operation;
 import com.put.sdm.operations.bank.CloseDepositOperation;
-import com.put.sdm.operations.bank.OpenDebitAccountOperation;
 import com.put.sdm.operations.bank.RepayAndCloseLoanOperation;
-import com.put.sdm.operations.product.RepayLoanPartiallyOperation;
-import com.put.sdm.operations.product.TransferMoneyOperation;
+import com.put.sdm.operations.product.*;
 import com.put.sdm.products.*;
 import com.put.sdm.products.object.Balance;
 import com.put.sdm.products.object.Person;
-import com.put.sdm.reports.HistoryReport;
+import com.put.sdm.reports.AccountsWithMoneyReport;
+import com.put.sdm.reports.CompleteReport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -146,6 +147,11 @@ public class BankingSystemTests {
 
         Deposit deposit = bank.openDepositForPersonUsingAccount(person1, account1, LocalDateTime.now().plusYears(1), new Balance(100.f));
 
+        {
+            Operation operation = new ChangeDepositInterestRateMechanism(deposit, new DepositInterestRateB());
+            operation.execute();
+        }
+
         assertEquals(100.f, deposit.getBalance().getValue());
 
         System.out.println(deposit.getBalance().getValue());
@@ -167,6 +173,11 @@ public class BankingSystemTests {
         assertEquals(100.f,account1.getBalance().getValue());
 
         Deposit deposit = bank.openDepositForPersonUsingAccount(person1, account1, LocalDateTime.now().minusDays(1), new Balance(100.f));
+
+        {
+            Operation operation = new ChangeDepositInterestRateMechanism(deposit, new DepositInterestRateB());
+            operation.execute();
+        }
 
         assertEquals(100.f, deposit.getBalance().getValue());
 
@@ -194,6 +205,11 @@ public class BankingSystemTests {
 
         Loan loan = bank.openLoanForPersonUsingAccount(person1, account1, new Balance(100.f));
 
+        {
+            Operation operation = new ChangeLoanInterestRateMechanism(loan, new LoanInterestRateB());
+            operation.execute();
+        }
+
         assertEquals(100.f, loan.getCredit().getValue());
         assertEquals(200.f, account1.getBalance().getValue());
 
@@ -205,7 +221,11 @@ public class BankingSystemTests {
         assertEquals(50.f, loan.getMoneyToRepay().getValue());
         assertEquals(150.f, account1.getBalance().getValue());
 
-        loan.increaseCreditByInterest();
+        {
+            Operation operation = new IncreaseCreditByInterest(loan);
+            operation.execute();
+        }
+
         assertEquals(50.f + 50.f * loan.getInterestMechanism().calculateInterest(loan), loan.getMoneyToRepay().getValue());
 
         Balance money_to_repay = loan.getMoneyToRepay();
@@ -238,7 +258,7 @@ public class BankingSystemTests {
             operation.execute();
         }
 
-        ArrayList<Product> products = bank.prepareReportProducts(new HistoryReport());
+        ArrayList<Product> products = bank.prepareReportProducts(new AccountsWithMoneyReport());
 
         assertTrue(products.contains(account1));
         assertFalse(products.contains(credit_account1));
@@ -247,7 +267,20 @@ public class BankingSystemTests {
         assertTrue(products.contains(account4));
         assertFalse(products.contains(account5));
 
-        System.out.println(bank.prepareHistoryReport());
+        ArrayList<Product> products2 = bank.prepareReportProducts(new CompleteReport());
+
+        assertTrue(products2.contains(account1));
+        assertTrue(products2.contains(credit_account1));
+        assertTrue(products2.contains(account2));
+        assertTrue(products2.contains(account3));
+        assertTrue(products2.contains(account4));
+        assertTrue(products2.contains(account5));
+
+        System.out.println("Accounts with money history report:");
+        System.out.println(bank.prepareAccountsWithMoneyReport());
+
+        System.out.println("Complete history report:");
+        System.out.println(bank.prepareCompleteReport());
     }
 
 }
